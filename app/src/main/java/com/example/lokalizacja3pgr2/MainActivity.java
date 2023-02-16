@@ -6,20 +6,30 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MainActivity extends AppCompatActivity {
 
     int REQUEST_LOCATION_PERMISSION =0;
+    FusedLocationProviderClient fusedLocationClient;
+    TextView textView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        textView = findViewById(R.id.textView);
         Button button = findViewById(R.id.button);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         button.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -55,6 +65,21 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             Log.d("Lokalizacja","wyrażona zgoda na lokalizację");
+            fusedLocationClient.getLastLocation().addOnSuccessListener(
+                    new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if(location!=null){
+                                double szerokoscGeograficzna = location.getLatitude();
+                                double dlugoscGeograficzna = location.getLongitude();
+                                String opis = "Długość geograficzna: "+Double.toString(dlugoscGeograficzna)+
+                                        " Szerokość geograficzna: "+Double.toString(szerokoscGeograficzna)+
+                                        " czas "+Double.toString(location.getTime());
+                                textView.setText(opis);
+                            }
+                        }
+                    }
+            );
         }
     }
 
